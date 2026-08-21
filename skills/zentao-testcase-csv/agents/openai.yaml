@@ -1,0 +1,7 @@
+interface:
+  display_name: "禅道测试用例CSV生成"
+  short_description: "按组长样例格式生成禅道可直接导入的测试用例CSV（12列、标点与步骤预期对应）"
+  default_prompt: "使用 $zentao-testcase-csv 按样例格式生成禅道可导入的测试用例 CSV"
+
+policy:
+  allow_implicit_invocation: true

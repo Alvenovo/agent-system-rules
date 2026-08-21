@@ -1,0 +1,79 @@
+---
+name: doubao-image-describe
+description: "通过 Chrome 后台（无头）打开豆包识别图片并返回描述，识别完成后自动删除对话。仅当当前模型不能看图（如 DeepSeek 等纯文本）且用户发送/附加了图片时使用；或用户明确要求豆包识图。当前模型已有原生视觉、或可用 Read 直接读取 jpeg/png/gif/webp 时不要使用本 skill。"
+---
+
+# 豆包识图（无视觉模型回退）
+
+## 是否调用（先判断，再执行）
+
+收到图片时先判断当前模型能不能看图。**能看就直接识别，不要跑本脚本。**
+
+**直接识别，禁止调用本 skill**
+
+- 对话附件里已经能看到画面
+- 有 Read 等工具可直接打开 jpeg/png/gif/webp
+- 系统或工具说明标明具备视觉能力
+
+**必须按下方流程调用本 skill**
+
+- DeepSeek 等已知无视觉模型
+- 只能看到文件路径或占位符，看不到像素
+- 没有读图工具，或读图明确不支持图片
+
+**例外仍走本 skill**
+
+- 用户明确要求用豆包识图
+- 本机已经看过图，但明显认错或看不清，可补调一次作第二意见
+
+调用时：全程不弹窗、不打扰用户界面；识别完成后自动删除豆包对话记录。
+
+## 流程
+
+1. 定位用户发送图片的绝对路径，确认文件存在。若有多张图片，对每张分别运行一次脚本。
+2. 运行脚本（默认后台无头运行，不弹任何窗口）：
+
+   ```powershell
+   & "C:\Users\admin\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe" scripts/doubao-describe.mjs --image "<图片绝对路径>" [--prompt "<可选提示词>"]
+   ```
+
+   调试时可加 `--headed` 显示 Chrome 窗口（正常使用不要加）。
+3. 脚本在后台打开豆包，粘贴图片并发送，轮询等待豆包生成回复，在 `===DOUBAO_REPLY===` 与 `===END===` 之间输出描述文本，然后自动删除该对话并输出 `DELETED`。首次运行时脚本会自动通过 Windows 任务计划程序启动一个常驻后台服务（任务名 `CodexDoubaoDescribe`），后续调用直接复用，不再重复冷启动浏览器。
+4. 把描述用中文自然转述给用户。若回复末尾带有“你是想要我帮你…”之类的推荐追问，可只保留核心描述部分。
+
+## 本机关键路径
+
+- 豆包 Chrome 专用配置（登录态）：`C:\Users\admin\Documents\Codex\doubao-chrome-profile`
+- Node.js：`C:\Users\admin\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe`
+- Playwright 包目录：`C:/Users/admin/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/`
+
+若脚本报“Cannot find package 'playwright'”，说明运行时路径已变化，用 `load_workspace_dependencies` 确认新路径并更新脚本中的 `createRequire` 路径。
+
+## 登录失效处理（无头模式）
+
+脚本检测到“登录”按钮时，会自动点击并截图二维码，保存到系统临时目录，输出 `LOGIN_REQUIRED` 并退出（退出码 3）。此时：
+
+1. 把截图通过 Markdown 图片展示给用户（例如 `![二维码](C:\...\doubao-login-qr.png)`）。
+2. 请用户用手机豆包 App 扫码登录一次。
+3. 用户确认扫码完成后，重新运行脚本即可；登录态会保存在专用配置目录中。
+
+## 自动删除记录
+
+脚本获取回复后会从侧边栏删除刚创建的对话（悬停条目 → 点 “...” → 删除 → 确认弹窗中的“删除”）。删除成功输出 `DELETED`；若输出 `WARN_DELETE_FAILED`，需要告知用户豆包里可能残留了一条对话记录，并手动检查清理。
+
+## 后台常驻服务（自动复用）
+
+- 首次调用会自动创建并启动后台服务（Windows 计划任务 `CodexDoubaoDescribe`），持有已登录的豆包页面；之后的调用直接复用同一浏览器页面，省去每次启动 Chrome 和加载页面的开销。
+- 后台服务通过 `wscript.exe` + VBS 隐藏启动（窗口样式 0），全程不会出现任何控制台或浏览器窗口，符合“不弹窗”的要求。
+- 服务闲置默认 15 分钟自动退出，退出时自动删除计划任务；可用 `--idle-ms <毫秒>` 调整闲置时长。
+- 手动管理命令：
+  - `--status`：查看后台服务状态（`DOUBAO_SERVER_RUNNING` / `DOUBAO_SERVER_NOT_RUNNING`）。
+  - `--stop`：停止后台服务并删除计划任务（`DOUBAO_SERVER_STOPPED`）。
+- 性能说明：UI 操作阶段（新对话、贴图、删除）已全部改为条件等待，单张约 2–3 秒；剩余耗时主要是豆包模型生成回复本身（约 20–25 秒），属正常生成时间。
+
+## 注意事项
+
+- 豆包网页版当前没有可见的“上传图片”按钮，脚本采用粘贴（`ClipboardEvent` + `File`）方式附加图片；若一次未生效会自动重试一次。
+- 发送通过 `#flow-end-msg-send` 按钮完成；脚本已在无头模式下伪装正常 Chrome UA（豆包服务端不处理 `HeadlessChrome` 请求），不要移除该配置。
+- 登录检测改为条件等待（检测到聊天输入框即视为已登录），不再固定轮询 15 秒，避免每次空等；只有确实检测到“登录”按钮时才走扫码流程。
+- 不要读取、导出或外传豆包账号的会话凭据。
