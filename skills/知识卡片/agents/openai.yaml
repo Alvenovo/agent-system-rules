@@ -1,0 +1,7 @@
+interface:
+  display_name: "知识卡片"
+  short_description: "把概念、对比或流程写成可复习卡片"
+  default_prompt: "使用 $知识卡片 把当前问题写成知识卡片"
+
+policy:
+  allow_implicit_invocation: true

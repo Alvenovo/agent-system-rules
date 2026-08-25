@@ -40,7 +40,7 @@ skills_keep = [
     "没听懂",
     "诊断缺陷",
     "写给模型",
-    "追问",
+    "知识卡片",
 ]
 skills_dst = dst / "skills"
 skills_dst.mkdir(exist_ok=True)

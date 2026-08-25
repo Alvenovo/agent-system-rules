@@ -1,3 +1,0 @@
-interface:
-  display_name: "追问"
-  short_description: "一轮只问当前能问的，并给推荐答案"
