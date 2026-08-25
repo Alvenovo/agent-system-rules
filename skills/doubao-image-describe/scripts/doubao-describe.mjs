@@ -1,19 +1,35 @@
 import { createRequire } from 'node:module';
 import { readFileSync, existsSync, writeFileSync, unlinkSync, appendFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { tmpdir, homedir } from 'node:os';
+import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import http from 'node:http';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 
-const require = createRequire(
-  'C:/Users/admin/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/'
-);
-const { chromium } = require('playwright');
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
+const SKILL_ROOT = join(SCRIPT_DIR, '..');
+const PLAYWRIGHT_CANDIDATES = [
+  join(SKILL_ROOT, 'node_modules') + '/',
+  join(homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/'),
+];
 
-const DEFAULT_PROFILE = 'C:\\Users\\admin\\Documents\\Codex\\doubao-chrome-profile';
+function loadPlaywright() {
+  let lastErr;
+  for (const dir of PLAYWRIGHT_CANDIDATES) {
+    try {
+      return createRequire(dir)('playwright');
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr ?? new Error("Cannot find package 'playwright'");
+}
+
+const { chromium } = loadPlaywright();
+
+const DEFAULT_PROFILE = join(homedir(), 'Documents', 'Codex', 'doubao-chrome-profile');
 const CHAT_URL = 'https://www.doubao.com/chat/';
 const STATE_FILE = join(tmpdir(), 'doubao-describe-server.json');
 const SCRIPT_PATH = fileURLToPath(import.meta.url);

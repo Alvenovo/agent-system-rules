@@ -34,7 +34,7 @@ description: "通过 Chrome 后台（无头）打开豆包识别图片并返回�
 2. 运行脚本（默认后台无头运行，不弹任何窗口）：
 
    ```powershell
-   & "C:\Users\admin\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe" scripts/doubao-describe.mjs --image "<图片绝对路径>" [--prompt "<可选提示词>"]
+   node scripts/doubao-describe.mjs --image "<图片绝对路径>" [--prompt "<可选提示词>"]
    ```
 
    调试时可加 `--headed` 显示 Chrome 窗口（正常使用不要加）。
@@ -43,9 +43,9 @@ description: "通过 Chrome 后台（无头）打开豆包识别图片并返回�
 
 ## 本机关键路径
 
-- 豆包 Chrome 专用配置（登录态）：`C:\Users\admin\Documents\Codex\doubao-chrome-profile`
-- Node.js：`C:\Users\admin\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe`
-- Playwright 包目录：`C:/Users/admin/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/`
+- 豆包 Chrome 专用配置（登录态）：`%USERPROFILE%\Documents\Codex\doubao-chrome-profile`
+- Node.js：使用 PATH 上的 `node`（需已安装 Node 18+）。
+- Playwright：需能 `require('playwright')`。若脚本报找不到包，在本 skill 目录执行 `npm install playwright`，或按本机 Codex runtime 更新脚本里的 `createRequire` 路径。
 
 若脚本报“Cannot find package 'playwright'”，说明运行时路径已变化，用 `load_workspace_dependencies` 确认新路径并更新脚本中的 `createRequire` 路径。
 

@@ -1,0 +1,3 @@
+interface:
+  display_name: "写给模型"
+  short_description: "写 skill、AGENTS.md 等给模型读的文档"

@@ -8,11 +8,11 @@ description: 按团队样例格式（12 列）生成禅道（ZenTao）可直接�
 ## 工作流
 
 1. **收集用例内容**：从用户给的功能清单、商品清单、图片或已有文档中提取每条用例的名称、所属模块、前置条件、步骤和预期。
-2. **按格式规范整理**：系统级《测试用例设计规范》已读且 12 列红线一致时，不必重复读 [references/format.md](references/format.md)；否则先读该文件。步骤与预期必须一一对应（步骤几步，预期就是几步）。
+2. **按格式规范整理**：`%USERPROFILE%\.codex\测试规则\测试用例设计规范.md` 已读且 12 列红线一致时，不必重复读 [references/format.md](references/format.md)；否则先读该文件。步骤与预期必须一一对应（步骤几步，预期就是几步）。
 3. **生成 CSV**：把整理结果写成 JSON（schema 见下方），运行 `scripts/generate_zentao_csv.mjs` 生成 CSV：
 
    ```powershell
-   & "C:\Users\admin\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe" scripts/generate_zentao_csv.mjs <cases.json> <output.csv>
+   node scripts/generate_zentao_csv.mjs <cases.json> <output.csv>
    ```
 
 4. **询问保存位置**：如果用户没有在请求里指定输出目录，必须先询问下载到哪里（例如"生成到哪里？"）；用户说了就直接用，不要再问。目录不存在时自动创建。
@@ -50,4 +50,4 @@ description: 按团队样例格式（12 列）生成禅道（ZenTao）可直接�
 
 ## 格式细节
 
-字段说明、样例行、标点规则和禅道导入注意事项见 [references/format.md](references/format.md)。系统级《测试用例设计规范》未读时，生成前必须完整阅读；已读且 12 列红线一致则可跳过。
+字段说明、样例行、标点规则和禅道导入注意事项见 [references/format.md](references/format.md)。`%USERPROFILE%\.codex\测试规则\测试用例设计规范.md` 未读时，生成前必须完整阅读；已读且 12 列红线一致则可跳过。

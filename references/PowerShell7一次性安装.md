@@ -1,6 +1,6 @@
 # PowerShell 7 一次性安装（系统级参考）
 
-> 触发：仅当 `C:\Users\admin\.codex\pwsh7.ok` **不存在**时读取并执行。标记已存在则禁止读取本文件、禁止检测版本。
+> 触发：仅当 `%USERPROFILE%\.codex\pwsh7.ok` **不存在**时读取并执行。标记已存在则禁止读取本文件、禁止检测版本。
 
 目的：让 Cursor / Codex Agent 的 Shell 用 PowerShell 7，避免 5.1 不认 `&&` 等语法导致失败重试。
 
@@ -28,7 +28,7 @@
 
 ## 标记
 
-路径：`C:\Users\admin\.codex\pwsh7.ok`  
+路径：`%USERPROFILE%\.codex\pwsh7.ok`  
 内容示例：
 
 ```

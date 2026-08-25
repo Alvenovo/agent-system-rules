@@ -1,0 +1,6 @@
+interface:
+  display_name: "没听懂"
+  short_description: "上一段没听懂，用白话重讲"
+  default_prompt: "使用 $没听懂 把刚才那段用白话重讲一遍"
+policy:
+  allow_implicit_invocation: false
