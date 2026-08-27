@@ -1,6 +1,6 @@
 ---
 name: 拷问对齐
-description: 用一轮轮提问把方案问清楚。用户说「拷问」「追问」「对齐需求」「先问清楚」时用。只由用户点名，不要自己跑。
+description: 高成本、不可逆或有明显架构分支时，用决策树逐轮对齐方案。
 disable-model-invocation: true
 ---
 

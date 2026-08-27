@@ -50,9 +50,13 @@ A 30-second flaky loop is barely better than no loop; a 2-second deterministic o
 
 The goal is not a clean repro but a **higher reproduction rate**. Loop the trigger 100×, parallelise, add stress, narrow timing windows, inject sleeps. A 50%-flake bug is debuggable; 1% is not, so keep raising the rate until it's debuggable.
 
-### When you genuinely cannot build a loop
+### Evidence path when you genuinely cannot build a loop
 
-Stop and say so explicitly. List what you tried. Ask the user for: (a) access to whatever environment reproduces it, (b) a redacted captured artifact (HAR file, log dump, core dump, screen recording with timestamps), or (c) permission to add temporary production instrumentation. Do **not** proceed to hypothesise without a loop.
+State explicitly that a runnable loop is not yet possible and list what you tried. Collect every available fact first: relevant logs, traces, metrics, request IDs, timestamps, deployment changes, environment differences, and the narrowest known trigger. Find facts from the environment yourself; ask the user only for access, a redacted artifact (HAR, log dump, core dump, timestamped recording), or permission for temporary production instrumentation.
+
+Produce an evidence ledger with three groups: **observed**, **ruled out**, and **missing**. You may rank investigative leads, but label them as unverified and do not modify product code from them. Resume the main path when one command or captured replay can test the exact symptom.
+
+Completion: the missing evidence and the next collection action are explicit, or a red-capable loop now exists.
 
 ### Completion criterion: a tight loop that goes red
 

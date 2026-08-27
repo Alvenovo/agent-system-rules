@@ -1,6 +1,6 @@
 interface:
   display_name: "拷问对齐"
-  short_description: "一轮轮提问，把方案问清楚"
-  default_prompt: "使用 $拷问对齐 把当前方案问清楚再动手"
+  short_description: "高成本或不可逆任务，用决策树把方案问清楚"
+  default_prompt: "仅当任务高成本、不可逆或有明显架构分支时，使用 $拷问对齐 把重要决策问清楚再动手；小改小修直接处理"
 policy:
   allow_implicit_invocation: false

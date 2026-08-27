@@ -1,3 +1,6 @@
 interface:
   display_name: "写给模型"
-  short_description: "写 skill、AGENTS.md 等给模型读的文档"
+  short_description: "编写、审计或压缩给模型读取的规则文档"
+
+policy:
+  allow_implicit_invocation: true

@@ -1,8 +1,8 @@
-# 系统级 AGENTS.md（Codex 源；同步到 Cursor User Rules，2026-08-27）
+# 系统级 AGENTS.md（Git 权威源；部署到 Codex / Cursor）
 
 > 用途：跨项目红线。测试正文在 `%USERPROFILE%\.codex\测试规则\`，日常开发不要读。禅道访问见触发表。周报用 skill `周报`。
 > 非测试参考：`%USERPROFILE%\.codex\references\`。
-> 本文件是源。改完后同步 `%USERPROFILE%\.codex\cursor-user-rules.md`，并更新 Cursor Settings 里对应的那条 User Rule。语义一致；仅工具差异可以不同。
+> 权威编辑源：`%USERPROFILE%\Documents\agent-system-rules` Git 工作区。共享正文由仓库 `AGENTS.md` 部署到 `%USERPROFILE%\.codex\AGENTS.md`；`cursor-user-rules.md` 由共享正文和 Cursor 差异自动生成。
 > 测试红线只维护 `测试规则\测试规则.md` 一份，不要抄回本文件。
 > `%USERPROFILE%` 为当前 Windows 用户主目录。
 
@@ -24,13 +24,14 @@
 
 ## 规则维护
 
-1. 非测试红线写入本文件并同步 Cursor；一两句能说清的才进主规则。测试红线只写入 `测试规则.md`。禅道访问写入 `references\禅道访问.md`。周报写入 skill `周报`。
+1. 规则、references 和自建 skills 只在 `agent-system-rules` Git 工作区编辑；`.codex` 与 Cursor User Rules 是部署目标。非测试红线写入本文件；测试红线只写入 `测试规则.md`。禅道访问写入 `references\禅道访问.md`。周报写入 skill `周报`。
 2. 条文长、步骤多、或只覆盖单一场景 → 测试相关写入 `测试规则\`，非测试写入 `references\`。主规则不贴长文。先查同主题：有则合并，没有则新建。
-3. 新建或合并测试细则后更新 `测试规则.md` 内层触发表。新建或合并非测试细则后更新本表并同步 Cursor。未命中禁止读取。
+3. 新建或合并测试细则后更新 `测试规则.md` 内层触发表。新建或合并非测试细则后更新本表。未命中禁止读取。
 4. 允许删除已作废条款。可压缩表达。接近约 12KB 时优先外移。
-5. 判断归属后可直接操作；红线语义变更须本文件与 Cursor 同步稿一起改。
-6. 项目专属规范写入该项目 `AGENTS.md` 或 `.cursor/rules/*.mdc`。
-7. 禁止把密码写入规则、对话或任何文件（含本仓库、GitHub）。
+5. 修改托管文件后，agent 自动执行仓库部署与校验流程：先备份本机差异，再部署 `.codex`，在 Cursor 中更新标题为「系统级工作规则（源：agent-system-rules）」的 User Rule，最后复核文件与 Settings。三处一致才算完成，无需用户提醒。
+6. 默认不 commit、不 push；仅在用户明确要求时提交或推送。
+7. 项目专属规范写入该项目 `AGENTS.md` 或 `.cursor/rules/*.mdc`。
+8. 禁止把密码写入规则、对话或任何文件（含本仓库、GitHub）。
 
 # 一、通用工作准则
 

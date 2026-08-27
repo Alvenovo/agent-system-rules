@@ -1,6 +1,6 @@
 ---
 name: 写给模型
-description: 写 skill、AGENTS.md 等给模型读的文档。正在新建或修改 skill、改 AGENTS.md 时用。
+description: 写给模型：新建、修改、审计或压缩 skill、AGENTS.md、规则与其指向的参考文档时使用。
 ---
 
 Reference for writing any document an agent consumes: a skill, an `AGENTS.md` / `CLAUDE.md`, a doc reached by a pointer. The packaging differs; the writing does not: the same levers make each one predictable, since the agent takes the same _process_ every run rather than producing the same output.

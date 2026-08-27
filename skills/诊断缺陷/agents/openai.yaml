@@ -1,3 +1,6 @@
 interface:
   display_name: "诊断缺陷"
   short_description: "难查的 bug：先做出会复现的检测再修"
+
+policy:
+  allow_implicit_invocation: true

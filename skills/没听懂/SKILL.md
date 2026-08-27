@@ -1,7 +1,14 @@
 ---
 name: 没听懂
-description: 上一段没听懂，用白话重讲。用户说「没听懂」「等一下你说啥」时用。只由用户点名。
+description: 补充必要上下文，用短句和项目术语把上一段重新讲清楚。
 disable-model-invocation: true
 ---
 
-Wait, I don't understand where you've got to here. Re-pitch that: give me a little bit of context, talk in ASD-STE100 Simplified Technical English, and use the ubiquitous language from `CONTEXT.md` (follow `CONTEXT-MAP.md` to the right one if the repo has more than one).
+重新讲上一段：
+
+1. 先补充理解它所需的最少上下文。
+2. 使用 ASD-STE100 风格的短句、常用词和单一含义。
+3. 项目有 `CONTEXT.md` 时使用其中术语；有多个时按 `CONTEXT-MAP.md` 选择。没有时沿用当前对话和代码中的术语，并在术语首次出现时用一句话解释。
+4. 先讲结论，再讲原因；只重讲用户卡住的部分。
+
+完成：用户能复述要点或明确表示已经理解；仍不理解时，询问具体卡在哪一句。

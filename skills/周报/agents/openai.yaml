@@ -1,0 +1,7 @@
+interface:
+  display_name: "周报"
+  short_description: "按团队模板生成并归档工作周报"
+  default_prompt: "使用 $周报 对账本周事项，按团队模板生成并归档周报"
+
+policy:
+  allow_implicit_invocation: true

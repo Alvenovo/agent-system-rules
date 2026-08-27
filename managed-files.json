@@ -1,0 +1,21 @@
+{
+  "files": [
+    "AGENTS.md",
+    "cursor-user-rules.md"
+  ],
+  "directories": [
+    "references",
+    "测试规则"
+  ],
+  "skills": [
+    "周报",
+    "禅道用例CSV",
+    "豆包识图",
+    "拷问对齐",
+    "没听懂",
+    "诊断缺陷",
+    "写给模型",
+    "知识卡片"
+  ],
+  "cursor_rule_title": "系统级工作规则（源：agent-system-rules）"
+}
