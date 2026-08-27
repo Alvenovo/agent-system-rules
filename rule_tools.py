@@ -2,19 +2,55 @@
 from __future__ import annotations
 
 import filecmp
+import hashlib
 import json
+import os
 import shutil
+import tempfile
 from pathlib import Path
 from typing import Any
 
 
-ROOT = Path(__file__).resolve().parent
-LOCAL_ROOT = Path.home() / ".codex"
+ROOT = Path(os.environ.get("AGENT_RULES_ROOT", Path(__file__).resolve().parent)).resolve()
+LOCAL_ROOT = Path(os.environ.get("AGENT_RULES_LOCAL_ROOT", Path.home() / ".codex")).resolve()
+DATA_ROOT = Path(
+    os.environ.get(
+        "AGENT_RULES_DATA_ROOT",
+        Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local")) / "agent-system-rules",
+    )
+).resolve()
 LOCAL_MANIFEST = LOCAL_ROOT / ".agent-system-rules-manifest.json"
+DEPLOYMENT_STATE = DATA_ROOT / "deployment-state.json"
+CURSOR_RECEIPT = DATA_ROOT / "cursor-verification.json"
+BACKUP_ROOT = DATA_ROOT / "backups"
+STAGING_ROOT = DATA_ROOT / "staging"
 
 
 def load_manifest(path: Path = ROOT / "managed-files.json") -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(manifest, dict):
+        raise ValueError("managed-files.json 顶层必须是对象")
+    for key in ("files", "directories", "skills"):
+        values = manifest.get(key)
+        if not isinstance(values, list) or any(not isinstance(value, str) or not value.strip() for value in values):
+            raise ValueError(f"managed-files.json 的 {key} 必须是非空字符串数组")
+    title = manifest.get("cursor_rule_title")
+    if not isinstance(title, str) or not title.strip() or len(title) > 200:
+        raise ValueError("managed-files.json 的 cursor_rule_title 必须是 1～200 字符")
+    paths = managed_paths(manifest)
+    if len(paths) != len(set(paths)):
+        raise ValueError("managed-files.json 存在重复托管路径")
+    normalized: list[Path] = []
+    for relative in paths:
+        path = Path(relative)
+        if path.is_absolute() or ".." in path.parts or str(path) in {"", "."}:
+            raise ValueError(f"非法托管路径：{relative}")
+        normalized.append(path)
+    for index, left in enumerate(normalized):
+        for right in normalized[index + 1:]:
+            if left in right.parents or right in left.parents:
+                raise ValueError(f"托管路径重叠：{left} / {right}")
+    return manifest
 
 
 def managed_paths(manifest: dict[str, Any]) -> list[str]:
@@ -71,6 +107,30 @@ def remove_path(path: Path) -> None:
         path.unlink()
 
 
+def atomic_write_text(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, temp_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    os.close(fd)
+    temp = Path(temp_name)
+    try:
+        temp.write_text(content, encoding="utf-8", newline="")
+        temp.replace(path)
+    finally:
+        temp.unlink(missing_ok=True)
+
+
+def write_json(path: Path, value: Any) -> None:
+    atomic_write_text(path, json.dumps(value, ensure_ascii=False, indent=2) + "\n")
+
+
+def read_json(path: Path) -> Any:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def text_sha256(content: str) -> str:
+    return hashlib.sha256(content.encode("utf-8")).hexdigest()
+
+
 def build_cursor_rules() -> str:
     source = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
     lines = source.splitlines()
@@ -89,5 +149,8 @@ def build_cursor_rules() -> str:
 
 def write_cursor_rules() -> Path:
     output = ROOT / "cursor-user-rules.md"
-    output.write_text(build_cursor_rules(), encoding="utf-8")
+    generated = build_cursor_rules()
+    if len(generated) > 20_000:
+        raise ValueError("Cursor User Rule 超过 20000 字符")
+    atomic_write_text(output, generated)
     return output

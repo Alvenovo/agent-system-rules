@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "project": "所属产品",
+  "requirement": {
+    "id": "fun_0000",
+    "name": "需求名称",
+    "owner": "负责人",
+    "date": "20260827"
+  },
+  "materials": [
+    {
+      "source": "需求文档 URL 或路径",
+      "status": "read",
+      "reason": ""
+    }
+  ],
+  "coverage": [
+    {
+      "coverage_id": "A-001",
+      "group": "A",
+      "checkpoint": "成功标准中的可判定检查点",
+      "source": "需求文档章节",
+      "status": "covered",
+      "case_keys": [
+        "module-core-flow"
+      ],
+      "reason": ""
+    }
+  ],
+  "cases": [
+    {
+      "case_key": "module-core-flow",
+      "module": "所属模块",
+      "platform": "PC",
+      "keyword": "核心流程",
+      "priority": 1,
+      "name": "核心流程可正常完成",
+      "precondition": "已准备满足要求的测试账号和数据。",
+      "steps": [
+        "打开目标页面并执行核心操作。"
+      ],
+      "expects": [
+        "页面展示需求规定的成功结果。"
+      ],
+      "timeout_seconds": 30,
+      "execution": {
+        "status": "not_run",
+        "note": "",
+        "evidence_ids": []
+      }
+    }
+  ],
+  "evidence": []
+}

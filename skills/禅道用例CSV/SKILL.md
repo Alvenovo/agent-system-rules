@@ -1,9 +1,11 @@
 ---
 name: 禅道用例CSV
-description: 禅道用例CSV：按团队 12 列 byAI 样例生成可导入 CSV。用户明确要禅道用例 CSV、按该样例导出，或把清单整理成禅道用例时使用。
+description: 独立禅道CSV：把清单或现有 JSON 转成团队 12 列可导入 CSV；完整测试四件套走测试规则统一生成器。
 ---
 
 # 禅道测试用例 CSV 生成
+
+本 skill 只处理独立 CSV 交付。任务属于完整测试用例设计、同步或归档时，改 `source/manifest.json`，运行 `%USERPROFILE%\.codex\测试规则\scripts\generate_test_package.py`，本 skill 到此完成。
 
 ## 工作流
 
