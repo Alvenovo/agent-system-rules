@@ -10,9 +10,9 @@ Codex / Cursor 系统级规则备份（不含密码）。本机生效文件仍�
 | --- | --- |
 | `AGENTS.md` | Codex 系统级规则（源） |
 | `cursor-user-rules.md` | Cursor User Rules 备份 |
-| `测试规则/` | 测试/周报/禅道；仅触发表命中才读 |
-| `references/` | PowerShell 7 安装、飞书访问 |
-| `skills/` | 拷问对齐、没听懂、诊断缺陷、写给模型、知识卡片，以及禅道 CSV、豆包识图 |
+| `测试规则/` | 测试；仅触发表命中才读。周报走 skill，禅道访问见 `references/` |
+| `references/` | PowerShell 7、飞书、Figma、禅道访问 |
+| `skills/` | 周报、拷问对齐、没听懂、诊断缺陷、写给模型、知识卡片、禅道用例CSV、豆包识图 |
 
 ## 家里电脑第一次用
 

@@ -1,5 +1,5 @@
 ---
-name: doubao-image-describe
+name: 豆包识图
 description: "通过 Chrome 后台（无头）打开豆包识别图片并返回描述，识别完成后自动删除对话。仅当当前模型不能看图（如 DeepSeek 等纯文本）且用户发送/附加了图片时使用；或用户明确要求豆包识图。当前模型已有原生视觉、或可用 Read 直接读取 jpeg/png/gif/webp 时不要使用本 skill。"
 ---
 

@@ -30,12 +30,15 @@ if ref.exists():
 ref.mkdir()
 copy_file("references/PowerShell7一次性安装.md")
 copy_file("references/飞书访问.md")
+copy_file("references/Figma访问.md")
+copy_file("references/禅道访问.md")
 
 copy_dir("测试规则")
 
 skills_keep = [
-    "zentao-testcase-csv",
-    "doubao-image-describe",
+    "周报",
+    "禅道用例CSV",
+    "豆包识图",
     "拷问对齐",
     "没听懂",
     "诊断缺陷",

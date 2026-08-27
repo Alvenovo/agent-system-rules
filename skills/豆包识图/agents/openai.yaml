@@ -1,0 +1,4 @@
+interface:
+  display_name: "豆包识图"
+  short_description: "当前模型不能看图时，用豆包识别图片并返回中文描述"
+  default_prompt: "If the current model cannot view images, use $豆包识图 to recognize and describe this image. If it can view images, describe the image directly and do not call Doubao."
