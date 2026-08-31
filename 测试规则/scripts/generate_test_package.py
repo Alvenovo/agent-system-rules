@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from openpyxl import Workbook, load_workbook
-from openpyxl.styles import Alignment, Font
+from openpyxl.styles import Alignment, Font, PatternFill
 
 
 HEADERS = [
@@ -31,6 +31,18 @@ STATUSES = {
 }
 PLATFORMS = {"PC", "Android", "iOS", "H5", "MiniProgram"}
 COVERAGE_STATUSES = {"covered", "blocked", "not_applicable"}
+STATUS_FILLS = {
+    "passed": ("C6EFCE", "006100"),
+    "suspected_defect": ("FFC7CE", "9C0006"),
+    "partial": ("FFEB9C", "9C5700"),
+    "blocked_environment": ("FFEB9C", "9C5700"),
+    "blocked_dependency": ("FFEB9C", "9C5700"),
+}
+BUG_EVIDENCE_PATH = re.compile(r"^证据/BUG-[^/\\]+\.md$")
+CASE_EVIDENCE_PATH = re.compile(
+    r"^证据/(?P<id>TC_[^/]+)/(?P=id)_(?:通过|失败-[^/\\:*?\"<>|]+)\.[A-Za-z0-9]+$"
+)
+EVIDENCE_LIST_NAME = "证据/实测证据清单.md"
 
 
 def fail(message: str) -> None:
@@ -209,12 +221,100 @@ def validate(data: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, str]
         if not isinstance(item_keys, list) or not item_keys or any(key not in keys for key in item_keys):
             fail(f"{evidence_id}.case_keys 无效")
         required_text(item.get("proves"), f"{evidence_id}.proves")
+        validate_evidence_path(relative.as_posix(), item_keys, display_ids, evidence_id)
 
     for case in normalized:
         for evidence_id in case["execution"].get("evidence_ids", []):
             if evidence_id not in evidence_ids:
                 fail(f"{case['case_key']} 引用了不存在的证据 {evidence_id}")
     return normalized, display_ids
+
+
+def validate_evidence_path(
+    path: str, item_keys: list[str], display_ids: dict[str, str], evidence_id: str
+) -> None:
+    if BUG_EVIDENCE_PATH.fullmatch(path):
+        return
+    match = CASE_EVIDENCE_PATH.fullmatch(path)
+    if not match:
+        fail(f"{evidence_id}.path 必须为 证据/{{用例编号}}/{{用例编号}}_{{通过|失败-短因}}.ext")
+    allowed = {display_ids[key] for key in item_keys}
+    if match.group("id") not in allowed:
+        fail(f"{evidence_id}.path 的用例编号不在关联用例中")
+
+
+def evidence_by_id(data: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return {item["evidence_id"]: item for item in data.get("evidence", [])}
+
+
+def case_evidence_paths(case: dict[str, Any], index: dict[str, dict[str, Any]]) -> list[str]:
+    paths: list[str] = []
+    for evidence_id in case["execution"].get("evidence_ids", []):
+        item = index.get(evidence_id)
+        if item:
+            paths.append(Path(item["path"]).as_posix())
+    return paths
+
+
+def case_evidence_proves(case: dict[str, Any], index: dict[str, dict[str, Any]]) -> str:
+    proves = []
+    seen: set[str] = set()
+    for evidence_id in case["execution"].get("evidence_ids", []):
+        item = index.get(evidence_id)
+        text = str((item or {}).get("proves") or "").strip()
+        if text and text not in seen:
+            seen.add(text)
+            proves.append(text)
+    return "；".join(proves)
+
+
+def color_status_cells(sheet: Any, cases: list[dict[str, Any]]) -> None:
+    for row_index, case in enumerate(cases, 2):
+        pair = STATUS_FILLS.get(case["execution"]["status"])
+        if not pair:
+            continue
+        fill, font_color = pair
+        cell = sheet.cell(row=row_index, column=5)
+        cell.fill = PatternFill("solid", fgColor=fill)
+        cell.font = Font(color=font_color)
+
+
+def write_evidence_list(
+    output: Path,
+    data: dict[str, Any],
+    cases: list[dict[str, Any]],
+    display_ids: dict[str, str],
+) -> None:
+    evidence_dir = output / "证据"
+    evidence_dir.mkdir(parents=True, exist_ok=True)
+    for stale in evidence_dir.glob("实测证据清单*.md"):
+        stale.unlink()
+    index = evidence_by_id(data)
+    req = data["requirement"]
+    lines = [
+        f"# 实测证据清单",
+        "",
+        f"> {data['project']} {req['id']} {req['name']}。按用例编号对照；生成器根据 manifest 覆盖写出。",
+        "",
+        "| 用例编号 | 状态 | 证据路径 | 证明什么 |",
+        "|---|---|---|---|",
+    ]
+    for case in cases:
+        paths = case_evidence_paths(case, index)
+        lines.append(
+            "| {id} | {status} | {path} | {proves} |".format(
+                id=display_ids[case["case_key"]],
+                status=STATUSES[case["execution"]["status"]],
+                path="<br>".join(f"`{path}`" for path in paths) or "—",
+                proves=case_evidence_proves(case, index) or "—",
+            )
+        )
+    bugs = [item for item in data.get("evidence", []) if BUG_EVIDENCE_PATH.fullmatch(Path(item["path"]).as_posix())]
+    if bugs:
+        lines.extend(["", "## BUG 文档", ""])
+        for item in bugs:
+            lines.append(f"- `{Path(item['path']).as_posix()}`：{item.get('proves', '').strip() or item['evidence_id']}")
+    atomic_write_text(output / EVIDENCE_LIST_NAME, "\n".join(lines) + "\n")
 
 
 def style_sheet(sheet: Any) -> None:
@@ -305,15 +405,18 @@ def generate(source: Path, output: Path) -> None:
     status_sheet = status_book.active
     status_sheet.title = "执行状态"
     status_sheet.append(["case_key", "用例编号", "平台", "用例名称", "执行状态", "实测说明", "证据"])
+    index = evidence_by_id(data)
     for case in cases:
         execution = case["execution"]
         status_sheet.append([
             case["case_key"], display_ids[case["case_key"]], case["platform"], case["name"],
             STATUSES[execution["status"]], execution.get("note", ""),
-            ", ".join(execution.get("evidence_ids", [])),
+            ", ".join(case_evidence_paths(case, index)),
         ])
     style_sheet(status_sheet)
+    color_status_cells(status_sheet, cases)
     atomic_save_workbook(status_book, output / names["status_xlsx"])
+    write_evidence_list(output, data, cases, display_ids)
 
     lines = [
         f"# {data['project']}测试执行过程", "",
@@ -359,7 +462,7 @@ def generate(source: Path, output: Path) -> None:
 def check(output: Path) -> None:
     manifest_path = output / "source" / "manifest.json"
     data = read_json(manifest_path)
-    cases, _ = validate(data)
+    cases, display_ids = validate(data)
     artifacts = data.get("artifacts")
     if not isinstance(artifacts, dict) or len(artifacts) != 4:
         fail("artifacts 必须记录四件套")
@@ -380,6 +483,34 @@ def check(output: Path) -> None:
         if sheet.max_row - 1 != len(cases):
             fail(f"{names[key]} 条数不一致")
         book.close()
+    list_path = output / EVIDENCE_LIST_NAME
+    if not list_path.is_file():
+        fail(f"缺少 {EVIDENCE_LIST_NAME}")
+    list_text = list_path.read_text(encoding="utf-8")
+    for case in cases:
+        if display_ids[case["case_key"]] not in list_text:
+            fail(f"证据清单缺少 {display_ids[case['case_key']]}")
+    for item in data.get("evidence", []):
+        evidence_file = output / item["path"]
+        if not evidence_file.is_file():
+            fail(f"缺少证据文件：{item['path']}")
+    status_book = load_workbook(output / names["status_xlsx"])
+    status_sheet = status_book.worksheets[0]
+    index = evidence_by_id(data)
+    for row_index, case in enumerate(cases, 2):
+        status_cell = status_sheet.cell(row=row_index, column=5)
+        expected = STATUS_FILLS.get(case["execution"]["status"])
+        fill_rgb = (status_cell.fill.fgColor.rgb or "") if status_cell.fill.fgColor else ""
+        if expected:
+            if not str(fill_rgb).upper().endswith(expected[0]):
+                fail(f"{display_ids[case['case_key']]} 执行状态未按规则着色")
+        elif status_cell.fill.fgColor and status_cell.fill.patternType:
+            fail(f"{display_ids[case['case_key']]} 未执行/不适用不应着色")
+        evidence_cell = str(status_sheet.cell(row=row_index, column=7).value or "")
+        for path in case_evidence_paths(case, index):
+            if path not in evidence_cell:
+                fail(f"{display_ids[case['case_key']]} 证据列应写路径而非 id")
+    status_book.close()
     print(f"ok: package valid ({len(cases)} cases)")
 
 
