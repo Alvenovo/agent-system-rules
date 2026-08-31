@@ -12,7 +12,7 @@
 
 | 文件 | 触发条件 |
 | --- | --- |
-| `%USERPROFILE%\.codex\测试规则\测试规则.md` | 编写/评审/修改/补充测试用例、生成用例 CSV/XLSX、对照他人用例或覆盖率、四件套/归档/组长评审表、执行证据或 BUG 反馈、执行用例/自动化复验/判定缺陷、测试环境登录或造数、小程序自动化 |
+| `%USERPROFILE%\.codex\测试规则\测试规则.md` | 测试任务：写/改/评用例、CSV/XLSX、覆盖对照、四件套/归档/BUG、执行或判定缺陷、环境登录或造数、小程序自动化 |
 | `%USERPROFILE%\.codex\references\PowerShell7一次性安装.md` | **仅当** `%USERPROFILE%\.codex\pwsh7.ok` 不存在。已存在则禁止读取、禁止检测版本、禁止讨论安装 |
 | `%USERPROFILE%\.codex\references\飞书访问.md` | 打开或登录飞书、飞书扫码、飞书文档、飞书消息 |
 | `%USERPROFILE%\.codex\references\Figma访问.md` | 打开或登录 Figma、任务/需求/禅道含 Figma 链接或设计稿 |
@@ -28,7 +28,7 @@
 2. 条文长、步骤多、或只覆盖单一场景 → 测试相关写入 `测试规则\`，非测试写入 `references\`。主规则不贴长文。先查同主题：有则合并，没有则新建。
 3. 新建或合并测试细则后更新 `测试规则.md` 内层触发表。新建或合并非测试细则后更新本表。未命中禁止读取。
 4. 允许删除已作废条款。可压缩表达。接近约 12KB 时优先外移。
-5. 修改托管文件后，agent 自动执行仓库部署与校验流程：先备份本机差异，再部署 `.codex`，在 Cursor 中更新标题为「系统级工作规则（源：agent-system-rules）」的 User Rule，最后复核文件与 Settings。三处一致才算完成，无需用户提醒。
+5. 改托管文件后按仓库 README 部署：`.codex` + 标题为「系统级工作规则（源：agent-system-rules）」的 User Rule + `validate-rules.py` 通过。三处一致才算完成。
 6. 默认不 commit、不 push；仅在用户明确要求时提交或推送。
 7. 项目专属规范写入该项目 `AGENTS.md` 或 `.cursor/rules/*.mdc`。
 8. 禁止把密码写入规则、对话或任何文件（含本仓库、GitHub）。
