@@ -16,7 +16,7 @@ Codex / Cursor 系统级规则的 Git 权威源（不含密码）。`%USERPROFIL
 | `validate-rules.py` | 校验生成文件与本机部署结果 |
 | `tests/` | 部署事务与测试包生成器回归测试 |
 | `测试规则/` | 测试；仅触发表命中才读。周报走 skill，禅道访问见 `references/` |
-| `references/` | PowerShell 7、飞书、Figma、禅道访问 |
+| `references/` | PowerShell 7、飞书、Figma、禅道访问、项目知识库 |
 | `skills/` | 周报、拷问对齐、没听懂、诊断缺陷、砍复杂度、写给模型、知识卡片、禅道用例CSV、豆包识图 |
 | `knowledge/` | 知识卡片资料，不部署到 `.codex` |
 
