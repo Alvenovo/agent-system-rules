@@ -5,7 +5,7 @@ description: 独立禅道CSV：把清单或现有 JSON 转成团队 12 列可导
 
 # 禅道测试用例 CSV 生成
 
-本 skill 只处理独立 CSV 交付。任务属于完整测试用例设计、同步或归档时，改 `source/manifest.json`，运行 `%USERPROFILE%\.codex\测试规则\scripts\generate_test_package.py`，本 skill 到此完成。
+本 skill 只处理独立 CSV 交付。任务属于完整测试用例设计、同步或归档时，改 `source/manifest.json`，运行 `python "$HOME/.codex/测试规则/scripts/generate_test_package.py" "<manifest.json>" "<需求归档目录>"`；校验按《测试规则.md》交付门禁。本 skill 到此完成。
 
 ## 工作流
 
