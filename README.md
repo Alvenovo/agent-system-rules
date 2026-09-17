@@ -1,6 +1,6 @@
 # agent-system-rules
 
-Codex / Cursor 系统级规则的 Git 权威源（不含密码）。`%USERPROFILE%\.codex\` 与 Cursor User Rules 是部署目标，不在其中直接编辑。
+Codex / Cursor / Qoder 系统级规则的 Git 权威源（不含密码）。`%USERPROFILE%\.codex\`、Cursor User Rules 与 `~/.qoder-cn\` 是部署目标，不在其中直接编辑。
 
 规则修改流程：编辑本仓库 → `python deploy-to-local.py` → 更新并复核 Cursor User Rule → `python deploy-to-local.py --cursor-verified` → `python validate-rules.py`。全部通过后才完成；默认不 commit、不 push。
 
@@ -8,9 +8,11 @@ Codex / Cursor 系统级规则的 Git 权威源（不含密码）。`%USERPROFIL
 
 | 路径 | 用途 |
 | --- | --- |
-| `AGENTS.md` | Codex / Cursor 共享正文（权威源） |
+| `AGENTS.md` | Codex / Cursor / Qoder 共享正文（权威源） |
 | `cursor-overrides.md` | Cursor 专属差异 |
 | `cursor-user-rules.md` | 自动生成的 Cursor User Rules，请勿手改 |
+| `qoder-overrides.md` | Qoder 专属差异（浏览器原则等），由 `deploy-to-qoder.sh` 拼进 Qoder 正文 |
+| `deploy-to-qoder.sh` | 把 `AGENTS.md + qoder-overrides.md` 生成到 `~/.qoder-cn/AGENTS.md`，并把中文 skill 重命名注册到 `~/.qoder-cn/skills/` |
 | `managed-files.json` | 部署到 `.codex` 的托管清单 |
 | `deploy-to-local.py` | 备份本机差异并部署托管文件 |
 | `validate-rules.py` | 校验生成文件与本机部署结果 |
@@ -29,6 +31,8 @@ Codex / Cursor 系统级规则的 Git 权威源（不含密码）。`%USERPROFIL
 5. 运行 `python deploy-to-local.py --cursor-verified`，再运行 `python validate-rules.py`；输出 `ok` 后新开 Agent 对话使规则生效。
 
 其他电脑更新：`git pull` 后重复第 2～5 步。
+
+Qoder CLI（可选，独立于上面的 Codex/Cursor 流程）：`git pull` 后运行 `bash deploy-to-qoder.sh`，它只读仓库与 `~/.codex/skills`，只写 `~/.qoder-cn/AGENTS.md` 与 `~/.qoder-cn/skills/`，不碰仓库既有文件；生效需新开会话或 `/skills reload`。
 
 部署中断后运行 `python deploy-to-local.py --resume` 继续，或运行 `python deploy-to-local.py --rollback` 恢复本机文件；回滚后按脚本给出的旧规则文件恢复 Cursor User Rule，再运行 `--cursor-verified`。默认保留最近 20 份且不超过 90 天的备份。
 
