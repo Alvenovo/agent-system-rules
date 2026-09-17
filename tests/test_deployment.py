@@ -44,6 +44,7 @@ class DeploymentTests(unittest.TestCase):
             "AGENT_RULES_ROOT": str(self.repo),
             "AGENT_RULES_LOCAL_ROOT": str(self.local),
             "AGENT_RULES_DATA_ROOT": str(self.data),
+            "PYTHONIOENCODING": "utf-8",
         }
 
     def tearDown(self) -> None:
@@ -54,6 +55,8 @@ class DeploymentTests(unittest.TestCase):
             [sys.executable, str(script), *args],
             env=self.env,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             capture_output=True,
             check=check,
         )

@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+# 被导入的生成器位于托管目录内，写 __pycache__ 会让它被部署到 .codex
+sys.dont_write_bytecode = True
 SCRIPT = ROOT / "测试规则" / "scripts" / "generate_test_package.py"
 SPEC = importlib.util.spec_from_file_location("generate_test_package", SCRIPT)
 assert SPEC and SPEC.loader
